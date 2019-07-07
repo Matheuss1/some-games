@@ -1,0 +1,78 @@
+import pygame, random
+from pygame.locals import*
+
+
+def random_apple_pos():
+    x = random.randint(0, 590)
+    y = random.randint(0, 590)
+    return (x // 10 * 10, y // 10 * 10)
+
+
+def collision(snake, apple):
+    return (snake[0] == apple[0] and snake[1] == apple[1])
+
+# SNAKE MOVES
+UP = 0
+RIGHT = 1
+DOWN = 2
+LEFT = 3
+
+pygame.init()
+screen = pygame.display.set_mode((600, 600))
+pygame.display.set_caption('Snake Game')
+
+# Snake
+snake = [(200, 200), (210, 200), (220, 200)]
+snake_body = pygame.Surface((10,10))
+snake_body.fill((124,252,0))
+
+# Apple
+apple = pygame.Surface((10,10))
+apple_pos = random_apple_pos()
+apple.fill((255, 0, 0))
+
+direction = LEFT
+
+clock = pygame.time.Clock()
+while True:
+    clock.tick(20)
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+    
+    # Get key pressed to move snake
+    if event.type == KEYDOWN:
+        if event.key == K_UP:
+            direction = UP
+        if event.key == K_DOWN:
+            direction = DOWN
+        if event.key == K_RIGHT:
+            direction = RIGHT
+        if event.key == K_LEFT:
+            direction = LEFT
+
+    # Verify if snake eats apple
+    if collision(snake[0], apple_pos):
+        apple_pos = random_apple_pos()
+        snake.append((0,0))
+
+    # Change snake body parts positions
+    if direction == UP:
+        snake[0] = (snake[0][0], snake[0][1] - 10)
+    if direction == DOWN:
+        snake[0] = (snake[0][0], snake[0][1] + 10)
+    if direction == RIGHT:
+        snake[0] = (snake[0][0] + 10, snake[0][1])
+    if direction == LEFT:
+        snake[0] = (snake[0][0] - 10, snake[0][1])
+    for i in range(len(snake) - 1, 0, -1):
+        snake[i] = (snake[i - 1][0], snake[i - 1][1])
+
+    # The fill and some other events of our game screen
+    screen.fill((255, 255, 255))
+    screen.blit(apple, apple_pos)
+    for pos in snake:
+        screen.blit(snake_body, pos)
+
+
+    pygame.display.update()
